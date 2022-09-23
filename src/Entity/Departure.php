@@ -21,7 +21,7 @@ class Departure
 
     #[ORM\ManyToOne(inversedBy: 'departures')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Line $line = null;
+    private ?Route $route = null;
 
     #[ORM\Column]
     private ?bool $direction = null;
@@ -46,14 +46,14 @@ class Departure
         return $this;
     }
 
-    public function getLine(): ?Line
+    public function getRoute(): ?Route
     {
-        return $this->line;
+        return $this->route;
     }
 
-    public function setLine(?Line $line): self
+    public function setRoute(?Route $route): self
     {
-        $this->line = $line;
+        $this->route = $route;
 
         return $this;
     }

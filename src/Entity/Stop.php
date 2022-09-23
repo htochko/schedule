@@ -20,11 +20,20 @@ class Stop
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column]
+    private ?int $systemName = null;
+
     #[ORM\Column(length: 16)]
     private ?string $code = null;
 
     #[ORM\OneToMany(mappedBy: 'stop', targetEntity: Route::class, orphanRemoval: true)]
     private Collection $routes;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $lon = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $lat = null;
 
     public function __construct()
     {
@@ -44,6 +53,18 @@ class Stop
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getSystemName(): ?int
+    {
+        return $this->systemName;
+    }
+
+    public function setSystemName(int $systemName): self
+    {
+        $this->systemName = $systemName;
 
         return $this;
     }
@@ -86,6 +107,30 @@ class Stop
                 $route->setStop(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLon(): ?float
+    {
+        return $this->lon;
+    }
+
+    public function setLon(?float $lon): self
+    {
+        $this->lon = $lon;
+
+        return $this;
+    }
+
+    public function getLat(): ?float
+    {
+        return $this->lat;
+    }
+
+    public function setLat(?float $lat): self
+    {
+        $this->lat = $lat;
 
         return $this;
     }

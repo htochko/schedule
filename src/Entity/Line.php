@@ -20,18 +20,11 @@ class Line
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'stop', targetEntity: Departure::class, orphanRemoval: true)]
-    private Collection $departures;
-
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $synced_at = null;
-
     #[ORM\OneToMany(mappedBy: 'line', targetEntity: Route::class, orphanRemoval: true)]
     private Collection $routes;
 
     public function __construct()
     {
-        $this->departures = new ArrayCollection();
         $this->routes = new ArrayCollection();
     }
 
@@ -51,30 +44,6 @@ class Line
 
         return $this;
     }
-
-    public function getSyncedAt(): ?\DateTimeImmutable
-    {
-        return $this->synced_at;
-    }
-
-    /**
-     * @return Collection<int, Departure>
-     */
-    public function getDepartures(): Collection
-    {
-        return $this->departures;
-    }
-
-    public function setSyncedAt(?\DateTimeImmutable $synced_at): self
-    {
-        $this->synced_at = $synced_at;
-
-        return $this;
-    }
-
-    /**
-     * todo addDeparture removeDeparture
-     */
 
     /**
      * @return Collection<int, Route>

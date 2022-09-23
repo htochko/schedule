@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\RouteRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource]
@@ -19,6 +21,16 @@ class Route
     #[ORM\JoinColumn(nullable: false)]
     private ?Line $line = null;
 
+    #[ORM\OneToMany(mappedBy: 'stop', targetEntity: Departure::class, orphanRemoval: true)]
+    private Collection $departures;
+
+
+    #[ORM\Column(length: 60)]
+    private ?string $systemName = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $description = null;
+
     #[ORM\ManyToOne(inversedBy: 'routes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Stop $stop = null;
@@ -28,6 +40,13 @@ class Route
 
     #[ORM\Column]
     private ?\DateInterval $interval = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $synced_at = null;
+
+    public function __construct() {
+        $this->departures = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -78,6 +97,26 @@ class Route
     public function setInterval(\DateInterval $interval): self
     {
         $this->interval = $interval;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Departure>
+     */
+    public function getDepartures(): Collection
+    {
+        return $this->departures;
+    }
+
+    public function getSyncedAt(): ?\DateTimeImmutable
+    {
+        return $this->synced_at;
+    }
+
+    public function setSyncedAt(?\DateTimeImmutable $synced_at): self
+    {
+        $this->synced_at = $synced_at;
 
         return $this;
     }
