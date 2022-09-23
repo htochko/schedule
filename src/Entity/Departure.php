@@ -16,15 +16,9 @@ class Departure
     #[ORM\Column()]
     private ?int $id = null;
 
-    #[ORM\Column(length: 60)]
-    private ?string $day = null;
-
     #[ORM\ManyToOne(inversedBy: 'departures')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Route $route = null;
-
-    #[ORM\Column]
-    private ?bool $direction = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $start_at = null;
@@ -32,18 +26,6 @@ class Departure
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getDay(): ?string
-    {
-        return $this->day;
-    }
-
-    public function setDay(string $day): self
-    {
-        $this->day = $day;
-
-        return $this;
     }
 
     public function getRoute(): ?Route
@@ -66,18 +48,6 @@ class Departure
     public function setStop(?Stop $stop): self
     {
         $this->stop = $stop;
-
-        return $this;
-    }
-
-    public function isDirection(): ?bool
-    {
-        return $this->direction;
-    }
-
-    public function setDirection(bool $direction): self
-    {
-        $this->direction = $direction;
 
         return $this;
     }

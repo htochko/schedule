@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\LineHandler;
 use App\Service\StopHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,7 +20,11 @@ use ZipArchive;
 )]
 class GetScheduleCommand extends Command
 {
-    public function __construct(private KernelInterface $appKernel, private StopHandler $stopHandler)
+    public function __construct(
+        private KernelInterface $appKernel,
+        private StopHandler $stopHandler,
+        private LineHandler $lineHandler
+    )
     {
         parent::__construct();
     }
@@ -28,6 +33,7 @@ class GetScheduleCommand extends Command
     {
         $this->addOption('upload', null, InputOption::VALUE_NONE, 'Grab new files')
              ->addOption('addStops', null, InputOption::VALUE_NONE, 'Populate Stops')
+             ->addOption('addLines', null, InputOption::VALUE_NONE, 'Populate Lines')
         ;
     }
 
@@ -58,7 +64,11 @@ class GetScheduleCommand extends Command
             $this->stopHandler->populate($filePath);
         }
 
-        $io->error('You have a new command! Now make it your own! Pass --help to see your options.');
+        if ($input->getOption('addLines')) {
+            $this->lineHandler->populate($filePath);
+        }
+
+        $io->note('Executed with ' . implode(',',$input->getOptions()));
 
         return Command::SUCCESS;
     }

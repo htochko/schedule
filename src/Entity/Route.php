@@ -35,7 +35,10 @@ class Route
     #[ORM\JoinColumn(nullable: false)]
     private ?Stop $stop = null;
 
-    #[ORM\Column]
+    #[ORM\Column(length: 60)]
+    private ?string $day = null;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $direction = null;
 
     #[ORM\Column]
@@ -56,6 +59,18 @@ class Route
     public function getLine(): ?Line
     {
         return $this->line;
+    }
+
+    public function getDay(): ?string
+    {
+        return $this->day;
+    }
+
+    public function setDay(string $day): self
+    {
+        $this->day = $day;
+
+        return $this;
     }
 
     public function setLine(?Line $line): self
@@ -119,5 +134,32 @@ class Route
         $this->synced_at = $synced_at;
 
         return $this;
+    }
+
+    public function setSystemName(string $systemName): self
+    {
+        $this->systemName = $systemName;
+        return $this;
+    }
+
+    public function getSystemName(): string
+    {
+        return $this->systemName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string|null $description
+     */
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 }
