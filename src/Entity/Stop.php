@@ -5,12 +5,33 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
+use App\Controller\TripsHandler;
 use App\Repository\StopRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ApiResource]
+#[ApiResource(operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(),
+        new Put(),
+        new Patch(),
+        new Delete(),
+        new Get(
+            name: 'trips',
+            uriTemplate: '/stops/{id}/trips',
+            controller: TripsHandler::class
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: StopRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'partial'])]
 class Stop

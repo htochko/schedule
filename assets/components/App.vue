@@ -10,6 +10,7 @@
                     :options="options"
                     @search="onSearch"
                     :reduce="name => name.name"
+                    @input="setSelected"
           >
             <template slot="no-options">
               type to search stops..
@@ -27,6 +28,7 @@
           </v-select>
         </div>
         <div class='column'>
+          <h2 v-text="stopName"></h2>
           Nearest trips: <!-- Selected  -->
           <!-- table of Nearest routes -->
         </div>
@@ -51,6 +53,9 @@ export default {
     return {
       message: "list of stops",
       options: [],
+      stopName: null,
+      stop: {},
+      trips:[],
     };
   },
   methods: {
@@ -59,6 +64,19 @@ export default {
         loading(true);
         this.search(loading, search, this);
       }
+    },
+    setSelected(value) {
+      console.log(value);
+      // todo get value as id without addtional viltering
+      this.stopName = value;
+      let stop = this.options.find(item => item.name = value);
+      // get nearest trips from stop
+      fetch(
+          `http://localhost:8080/api/stops/${stop.id}/trips`
+      ).then(res => {
+        res.json().then(json => (this.trips = json['hydra:member']));
+      });
+      this.stopName = value;
     },
     search: _.debounce((loading, search, vm) => {
       fetch(
