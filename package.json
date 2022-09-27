@@ -23,6 +23,7 @@
         "build": "encore production --progress"
     },
     "dependencies": {
+        "lodash": "^4.17.21",
         "vue-select": "^3.20.0"
     }
 }
