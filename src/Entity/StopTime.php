@@ -2,10 +2,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Repository\StopTimeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiSubresource]
 #[ORM\Entity(repositoryClass: StopTimeRepository::class)]
 class StopTime
 {
@@ -14,6 +17,7 @@ class StopTime
     #[ORM\Column()]
     private ?int $id = null;
 
+    #[Groups('stop:routes')]
     #[ORM\ManyToOne(inversedBy: 'stopTimes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Trip $trip = null;
@@ -28,6 +32,7 @@ class StopTime
     #[ORM\Column]
     private ?\DateTimeImmutable $synced_at = null;
 
+    #[Groups('stop:routes')]
     #[ORM\Column(type: 'datetime_immutable', nullable: true, options: ["default"=>"CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $departure_at = null;
 

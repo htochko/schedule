@@ -7,6 +7,7 @@ use App\Repository\LineRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource]
 #[ORM\Entity(repositoryClass: LineRepository::class)]
@@ -17,6 +18,7 @@ class Line
     #[ORM\Column()]
     private ?int $id = null;
 
+    #[Groups('stop:routes')]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

@@ -70,9 +70,9 @@ export default {
       // todo get value as id without addtional viltering
       this.stopName = value;
       let stop = this.options.find(item => item.name = value);
-      // get nearest trips from stop
+      // todo add filters to by day, order by nearest time etc;
       fetch(
-          `/api/stops/${stop.id}/trips`
+          `/api/stops/${stop.id}`
       ).then(res => {
         res.json().then(json => (this.trips = json['hydra:member']));
       });

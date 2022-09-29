@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -11,26 +12,22 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
-use App\Controller\TripsHandler;
 use App\Repository\StopRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(operations: [
+#[ApiResource(
+    operations: [
         new GetCollection(),
         new Get(),
         new Post(),
         new Put(),
         new Patch(),
-        new Delete(),
-        new Get(
-            name: 'trips',
-            uriTemplate: '/stops/{id}/trips',
-            controller: TripsHandler::class
-        )
-    ]
+        new Delete()
+    ],
+    normalizationContext: ['groups' => ['stop:routes']]
 )]
 #[ORM\Entity(repositoryClass: StopRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'partial'])]
@@ -41,6 +38,7 @@ class Stop
     #[ORM\Column()]
     private ?int $id = null;
 
+    #[Groups('stop:routes')]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -59,6 +57,8 @@ class Stop
     #[ORM\Column(nullable: true)]
     private ?float $lat = null;
 
+    #[ApiSubresource]
+    #[Groups('stop:routes')]
     #[ORM\OneToMany(mappedBy: 'stop', targetEntity: StopTime::class, orphanRemoval: true)]
     private Collection $stopTimes;
 
@@ -163,9 +163,7 @@ class Stop
         return $this;
     }
 
-    /**
-     * @return Collection<int, StopTime>
-     */
+
     public function getStopTimes(): Collection
     {
         return $this->stopTimes;
