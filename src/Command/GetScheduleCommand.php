@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Service\LineHandler;
 use App\Service\StopHandler;
+use App\Service\StopTimeHandler;
 use App\Service\TripHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,7 +26,8 @@ class GetScheduleCommand extends Command
         private KernelInterface $appKernel,
         private StopHandler $stopHandler,
         private LineHandler $lineHandler,
-        private TripHandler $tripHandler
+        private TripHandler $tripHandler,
+        private StopTimeHandler $stopTimeHandler
     )
     {
         parent::__construct();
@@ -37,6 +39,7 @@ class GetScheduleCommand extends Command
              ->addOption('addStops', null, InputOption::VALUE_NONE, 'Populate Stops')
              ->addOption('addLines', null, InputOption::VALUE_NONE, 'Populate Lines')
              ->addOption('addTrips', null, InputOption::VALUE_NONE, 'Populate Trips')
+             ->addOption('addStopTimes', null, InputOption::VALUE_NONE, 'Populate Stop Times')
         ;
     }
 
@@ -73,6 +76,11 @@ class GetScheduleCommand extends Command
 
         if ($input->getOption('addTrips')) {
             $this->tripHandler->populate($filePath);
+        }
+
+        if ($input->getOption('addStopTimes')) {
+            $io->note('Stop Times will take some time');
+            $this->stopTimeHandler->populate($filePath);
         }
 
         $io->note('Executed with ' . implode(',',$input->getOptions()));
