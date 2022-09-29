@@ -59,9 +59,13 @@ class Stop
     #[ORM\Column(nullable: true)]
     private ?float $lat = null;
 
+    #[ORM\OneToMany(mappedBy: 'stop', targetEntity: StopTime::class, orphanRemoval: true)]
+    private Collection $stopTimes;
+
     public function __construct()
     {
         $this->routes = new ArrayCollection();
+        $this->stopTimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -155,6 +159,36 @@ class Stop
     public function setLat(?float $lat): self
     {
         $this->lat = $lat;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StopTime>
+     */
+    public function getStopTimes(): Collection
+    {
+        return $this->stopTimes;
+    }
+
+    public function addStopTime(StopTime $stopTime): self
+    {
+        if (!$this->stopTimes->contains($stopTime)) {
+            $this->stopTimes[] = $stopTime;
+            $stopTime->setStop($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStopTime(StopTime $stopTime): self
+    {
+        if ($this->stopTimes->removeElement($stopTime)) {
+            // set the owning side to null (unless already changed)
+            if ($stopTime->getStop() === $this) {
+                $stopTime->setStop(null);
+            }
+        }
 
         return $this;
     }

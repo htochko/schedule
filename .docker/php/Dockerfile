@@ -1,6 +1,10 @@
 FROM php:8-fpm
 
-RUN apt-get update && \
+
+
+RUN pecl install xdebug && \
+    docker-php-ext-enable xdebug && \
+    apt-get update && \
     apt-get install -y software-properties-common \
     libpq-dev \
     wget curl \

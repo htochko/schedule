@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Service\LineHandler;
 use App\Service\StopHandler;
+use App\Service\TripHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,7 +24,8 @@ class GetScheduleCommand extends Command
     public function __construct(
         private KernelInterface $appKernel,
         private StopHandler $stopHandler,
-        private LineHandler $lineHandler
+        private LineHandler $lineHandler,
+        private TripHandler $tripHandler
     )
     {
         parent::__construct();
@@ -34,6 +36,7 @@ class GetScheduleCommand extends Command
         $this->addOption('upload', null, InputOption::VALUE_NONE, 'Grab new files')
              ->addOption('addStops', null, InputOption::VALUE_NONE, 'Populate Stops')
              ->addOption('addLines', null, InputOption::VALUE_NONE, 'Populate Lines')
+             ->addOption('addTrips', null, InputOption::VALUE_NONE, 'Populate Trips')
         ;
     }
 
@@ -66,6 +69,10 @@ class GetScheduleCommand extends Command
 
         if ($input->getOption('addLines')) {
             $this->lineHandler->populate($filePath);
+        }
+
+        if ($input->getOption('addTrips')) {
+            $this->tripHandler->populate($filePath);
         }
 
         $io->note('Executed with ' . implode(',',$input->getOptions()));

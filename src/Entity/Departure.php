@@ -20,7 +20,7 @@ class Departure
     #[ORM\JoinColumn(nullable: false)]
     private ?Route $route = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
     private ?\DateTimeInterface $start_at = null;
 
     public function getId(): ?int

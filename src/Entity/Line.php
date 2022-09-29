@@ -23,9 +23,13 @@ class Line
     #[ORM\OneToMany(mappedBy: 'line', targetEntity: Route::class, orphanRemoval: true)]
     private Collection $routes;
 
+    #[ORM\OneToMany(mappedBy: 'line', targetEntity: Trip::class, orphanRemoval: true)]
+    private Collection $trips;
+
     public function __construct()
     {
         $this->routes = new ArrayCollection();
+        $this->trips = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,5 +77,40 @@ class Line
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Trip>
+     */
+    public function getTrips(): Collection
+    {
+        return $this->trips;
+    }
+
+    public function addTrip(Trip $trip): self
+    {
+        if (!$this->trips->contains($trip)) {
+            $this->trips[] = $trip;
+            $trip->setLine($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrip(Trip $trip): self
+    {
+        if ($this->trips->removeElement($trip)) {
+            // set the owning side to null (unless already changed)
+            if ($trip->getLine() === $this) {
+                $trip->setLine(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 }

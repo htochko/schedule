@@ -72,7 +72,7 @@ export default {
       let stop = this.options.find(item => item.name = value);
       // get nearest trips from stop
       fetch(
-          `http://localhost:8080/api/stops/${stop.id}/trips`
+          `/api/stops/${stop.id}/trips`
       ).then(res => {
         res.json().then(json => (this.trips = json['hydra:member']));
       });
@@ -80,7 +80,7 @@ export default {
     },
     search: _.debounce((loading, search, vm) => {
       fetch(
-          `http://localhost:8080/api/stops?page=1&name=${escape(search)}`
+          `/api/stops?page=1&name=${escape(search)}`
       ).then(res => {
         res.json().then(json => (vm.options = json['hydra:member']));
         loading(false);
