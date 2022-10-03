@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Repository\TripRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiSubresource]
 #[ORM\Entity(repositoryClass: TripRepository::class)]
 class Trip
 {
@@ -18,18 +16,19 @@ class Trip
     #[ORM\Column()]
     private ?int $id = null;
 
-    #[Groups('stop:routes')]
+    #[Groups(['stop:routes', 'times:view'])]
     #[ORM\ManyToOne(inversedBy: 'trips')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Line $line = null;
 
-    #[Groups('stop:routes')]
+    #[Groups(['stop:routes',  'times:view'])]
     #[ORM\Column]
     private ?int $day = null;
 
     #[ORM\Column(length: 255, nullable: false)]
     private ?string $systemName = null;
 
+    #[Groups(['times:view'])]
     #[ORM\Column(length: 255)]
     private ?string $header = null;
 
@@ -42,6 +41,7 @@ class Trip
     #[ORM\OneToMany(mappedBy: 'trip', targetEntity: StopTime::class, orphanRemoval: true)]
     private Collection $stopTimes;
 
+    #[Groups(['times:view'])]
     #[ORM\Column(nullable: true)]
     private ?bool $direction = null;
 

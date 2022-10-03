@@ -18,7 +18,7 @@ class Line
     #[ORM\Column()]
     private ?int $id = null;
 
-    #[Groups('stop:routes')]
+    #[Groups(['stop:routes', 'times:view'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

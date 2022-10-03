@@ -2,13 +2,20 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\StopTimeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiSubresource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['times:view']]
+)]
+#[ApiFilter(SearchFilter::class, properties: ['stop.id' => 'exact', 'trip.day' => 'exact'])]
+#[ApiFilter(DateFilter::class, properties: ['departure_at' => DateFilter::PARAMETER_STRICTLY_AFTER])]
 #[ORM\Entity(repositoryClass: StopTimeRepository::class)]
 class StopTime
 {
@@ -17,11 +24,12 @@ class StopTime
     #[ORM\Column()]
     private ?int $id = null;
 
-    #[Groups('stop:routes')]
+    #[Groups(['stop:routes', 'times:view'])]
     #[ORM\ManyToOne(inversedBy: 'stopTimes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Trip $trip = null;
 
+    #[Groups(['times:view'])]
     #[ORM\ManyToOne(inversedBy: 'stopTimes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Stop $stop = null;
@@ -32,7 +40,7 @@ class StopTime
     #[ORM\Column]
     private ?\DateTimeImmutable $synced_at = null;
 
-    #[Groups('stop:routes')]
+    #[Groups(['stop:routes', 'times:view'])]
     #[ORM\Column(type: 'datetime_immutable', nullable: true, options: ["default"=>"CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $departure_at = null;
 

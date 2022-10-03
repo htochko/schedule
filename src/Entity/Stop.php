@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -33,6 +32,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'partial'])]
 class Stop
 {
+    #[Groups(['stop:routes', 'times:view'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column()]
@@ -57,7 +57,6 @@ class Stop
     #[ORM\Column(nullable: true)]
     private ?float $lat = null;
 
-    #[ApiSubresource]
     #[Groups('stop:routes')]
     #[ORM\OneToMany(mappedBy: 'stop', targetEntity: StopTime::class, orphanRemoval: true)]
     private Collection $stopTimes;
