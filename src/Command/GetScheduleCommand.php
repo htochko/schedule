@@ -80,7 +80,13 @@ class GetScheduleCommand extends Command
 
         if ($input->getOption('addStopTimes')) {
             $io->note('Stop Times will take some time');
-            $this->stopTimeHandler->populate($filePath);
+            $i = 0;
+            while ($i < 1000000) {
+                gc_collect_cycles();
+                echo memory_get_usage();
+                $this->stopTimeHandler->populate($filePath, $i);
+                $i+= 8000;
+            }
         }
 
         $io->note('Executed with ' . implode(',',$input->getOptions()));
