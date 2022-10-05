@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class StopHandler
 {
-    const SOURCE_NAME = 'stops.txt';
+    const SOURCE_NAME = 'stops.csv';
     const BATCH_SIZE = 20;
 
     public function __construct(private EntityManagerInterface $entityManager) {
@@ -22,8 +22,8 @@ class StopHandler
                 return;
             }
             //Ignore the first line
-            fgets($file);
-            while (($line = fgets($file)) !== false) {
+            fgetcsv($file);
+            while (($line = fgetcsv($file)) !== false) {
                 yield $line;
             }
 
@@ -31,12 +31,11 @@ class StopHandler
         };
         $i = 1;
 
-        foreach ($fileData() as $line) {
+        foreach ($fileData() as $data) {
             /**
              * $data structure
              * [0 => 'stop_id', 1 => 'stop_code', 2 => 'stop_name', 3 =>'stop_lat', 4 => 'stop_lon', 5 => 'zone_id'];
              */
-            $data = explode(',', $line);
             $stop = new Stop();
             $stop->setSystemName($data[0])
                 ->setCode($data[1])

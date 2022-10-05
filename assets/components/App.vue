@@ -72,7 +72,7 @@ export default {
         if (!(trip.trip.line.name in departures[+trip.trip.direction])) {
           departures[+trip.trip.direction][trip.trip.line.name] = [];
         }
-        departures[+trip.trip.direction][trip.trip.line.name].push(trip.departure_at);
+        departures[+trip.trip.direction][trip.trip.line.name].push(trip.departuresIn);
       });
       const objectDepartures = Object.keys(departures[1]).map(function(line) {
         return {line: line, times: departures[1][line].join(', ')};
@@ -89,7 +89,7 @@ export default {
       let time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
       // remove `time` to server side as default;
       fetch(
-          `/api/stop_times?page=1&stop.id=${this.stop.id}&trip.day=2&departure_at[after]=${time}`
+          `/api/stop_times?page=1&stop.id=${this.stop.id}&trip.day=2&departure_at[after]=${time}&order[departure_at]=asc`
       ).then(res => {
         res.json().then(json => {
           this.trips = json['hydra:member'];

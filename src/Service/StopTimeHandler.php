@@ -6,9 +6,13 @@ use Doctrine\DBAL\Connection;
 
 class StopTimeHandler
 {
-    const SOURCE_NAME = 'stop_times.txt';
+    const SOURCE_NAME = 'stop_times_x.csv';
+    const COPY_NAME = 'stop_times_tmp.csv';
+    const BROKEN = 'broken.csv';
     const BATCH_SIZE = 80;
 
+    private bool $fileMode = false;
+    private $file = null;
     private array $stops = [];
     private ?int $trip_id = null;
     private ?string $trip = null;
@@ -17,47 +21,56 @@ class StopTimeHandler
     public function __construct(
         private Connection $connection
     ) {
-        echo (memory_get_usage() . '\n');
+        echo (memory_get_usage() . PHP_EOL);
     }
 
-    public function populate(?string $path = '', $k = 0) {
+    public function populate(?string $path = '', ?bool $continue = false) {
         $i = 1;
-        $filePath = $path . self::SOURCE_NAME;
-        $fileData = function() use ($filePath, $k){
+        $this->fileMode = false;
+
+        $fileData = function() use ($path, $continue){
+            $filePath = $path . self::SOURCE_NAME;
             $file = fopen($filePath, 'r') ;
             if (!$file) {
                 return;
             }
-            //Ignore the first line
-            fgets($file);
-            $n = 0;
-            while (($line = fgets($file)) !== false) {
-                $n++;
-                if ($n > $k) {
-                    yield $line;
-                }
+            //Ignore the first line\
+            if (false === $continue) {
+                fgetcsv($file);
             }
-
+            while (($line = fgetcsv($file)) !== false) {
+                yield $line;
+            }
             fclose($file);
+            $this->replaceFiles($path);
         };
-        foreach ($fileData() as $line) {
+
+        $arrayData = [];
+        foreach ($fileData() as $data) {
             $i++;
+            if ($this->fileMode) {
+                fputcsv($this->file, $data);
+            } else {
             /**
              * $data structure
              * [0 => trip_id, 1 => arrival_time, 2 => departure_time, 3 => stop_id, 4 => stop_sequence, 5 => stop_headsign,pickup_type,drop_off_type];
              */
-            $data = explode(',', $line);
             $this->checkRouteChanged($data[4]);
             $trip_id = $this->getTripIdBySystemName($data[0]);
             $stop_id = $this->getStopIdBySystemName(intval($data[3]));
-            if (!empty($stop_id)) {
+            if ($stop_id && intval(substr($data[2], 0, 2)) < 24) {
                 $arrayData[] = [
                     'trip_id' => $trip_id,
                     'stop_id' => $stop_id,
-                    'sequence' => $data[4],
+                    'sequence' => intval($data[4]),
                     'departure_at' => $data[2]
                 ];
+            } else {
+                $broken = fopen($path . self::BROKEN, 'a');
+                fputcsv($broken, $data);
+                fclose($broken);
             }
+
             if (($i % self::BATCH_SIZE) === 0) {
                 $this->bulkInsert($arrayData);
                 $arrayData = [];
@@ -65,14 +78,35 @@ class StopTimeHandler
                     gc_enable();
                 }
                 gc_collect_cycles();
-                if($i >= 8000) {
-                    clearstatcache();
-                    echo (memory_get_usage() . '\n');
-                    return;
+                if(memory_get_usage() >= 512 * 1048576 * 0.8) {
+                    $this->startFileMode($path);
                 }
             }
         }
-        $this->bulkInsert($arrayData);
+        }
+
+        if (!empty($arrayData)) {
+            $this->bulkInsert($arrayData);
+        }
+        echo (memory_get_usage() . PHP_EOL);
+        return $this->fileMode;
+    }
+
+    private function replaceFiles($path): void {
+        if (!empty($this->file)) {
+            fclose($this->file);
+            if (true === rename($path . self::COPY_NAME,$path . self::SOURCE_NAME)) {
+            }
+        }
+    }
+
+    private function startFileMode(string $filePath): void
+    {
+        $this->fileMode = true;
+        $file = fopen($filePath . self::COPY_NAME, "w+");
+        stream_set_blocking($file, false);
+        $this->file = $file;
+        sleep(2);
     }
 
     /**
@@ -95,16 +129,20 @@ class StopTimeHandler
             return $this->stops[$systemName];
         }
         $stop = $this->connection->fetchOne('SELECT id from stop WHERE system_name = ?', [$systemName]);
-        $this->stops[$systemName] = $stop;
-
+        if ($stop) {
+            $this->stops[$systemName] = $stop;
+        }
         return $stop;
     }
 
     /**
      * Bulk insert to avoid memory leaks
      */
-    private function bulkInsert($stopTimes): void
+    private function bulkInsert(array $stopTimes): void
     {
+        if(empty($stopTimes)) {
+            return;
+        }
         $placeholders = [];
         $values = [];
         $types = [];

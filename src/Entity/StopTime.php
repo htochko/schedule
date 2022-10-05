@@ -7,15 +7,18 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\StopTimeRepository;
+use Carbon\Carbon;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 
 #[ApiResource(
     normalizationContext: ['groups' => ['times:view']]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['stop.id' => 'exact', 'trip.day' => 'exact'])]
 #[ApiFilter(DateFilter::class, properties: ['departure_at' => DateFilter::PARAMETER_STRICTLY_AFTER])]
+#[ApiFilter(OrderFilter::class, properties: ['departure_at' => 'ASC'])]
 #[ORM\Entity(repositoryClass: StopTimeRepository::class)]
 class StopTime
 {
@@ -43,6 +46,8 @@ class StopTime
     #[Groups(['stop:routes', 'times:view'])]
     #[ORM\Column(type: 'datetime_immutable', nullable: true, options: ["default"=>"CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $departure_at = null;
+
+    private ?string $departuresIn;
 
     public function getId(): ?int
     {
@@ -100,6 +105,12 @@ class StopTime
     public function getDepartureAt(): ?\DateTimeImmutable
     {
         return $this->departure_at;
+    }
+
+    #[Groups(['times:view'])]
+    public function getDeparturesIn(): ?string
+    {
+        return Carbon::instance($this->departure_at)->diffForHumans();
     }
 
     public function setDepartureAt(\DateTimeImmutable $departure_at): self

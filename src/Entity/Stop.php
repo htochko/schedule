@@ -57,7 +57,7 @@ class Stop
     #[ORM\Column(nullable: true)]
     private ?float $lat = null;
 
-    #[Groups('stop:routes')]
+    //#[Groups(['stop:routes'])]
     #[ORM\OneToMany(mappedBy: 'stop', targetEntity: StopTime::class, orphanRemoval: true)]
     private Collection $stopTimes;
 

@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 
 class TripHandler
 {
-    const SOURCE_NAME = 'trips.txt';
+    const SOURCE_NAME = 'trips.csv';
     const BATCH_SIZE = 80;
 
     private ?Line $line = null;
@@ -32,9 +32,9 @@ class TripHandler
                 return;
             }
             //Ignore the first line
-            fgets($file);
+            fgetcsv($file);
 
-            while (($line = fgets($file)) !== false) {
+            while (($line = fgetcsv($file)) !== false) {
                 yield $line;
             }
 
@@ -43,8 +43,7 @@ class TripHandler
 
         $i = 1;
         $arrayData = [];
-        foreach ($fileData() as $order => $item) {
-            $itemData = explode(',', $item);
+        foreach ($fileData() as $order => $itemData) {
             /**
              * $data structure
              * [0 => route_id(line), 1 => service_id, 2 => trip_id, 3 => trip_headsign, 4=> direction_id,shape_id,wheelchair_accessible,brigade]

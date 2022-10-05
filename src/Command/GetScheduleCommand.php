@@ -15,7 +15,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 use ZipArchive;
 
-
 #[AsCommand(
     name: 'app:get-schedule',
     description: 'Scrapping schedule from https://www.ztm.poznan.pl/pl/dla-deweloperow/gtfsFiles',
@@ -59,7 +58,7 @@ class GetScheduleCommand extends Command
             $zip = new ZipArchive();
 
             if (true === $zip->open($filePath . $fileName)) {
-                $zip->extractTo($this->appKernel->getProjectDir().'/archive/');
+                $zip->extractTo($filePath);
                 $zip->close();
                 unlink($filePath . $fileName);
                 $io->success('');
@@ -67,6 +66,7 @@ class GetScheduleCommand extends Command
         }
 
         if ($input->getOption('addStops')) {
+            if (copy($filePath . 'stops.txt', $filePath . 'stops.csv'))
             $this->stopHandler->populate($filePath);
         }
 
@@ -75,17 +75,18 @@ class GetScheduleCommand extends Command
         }
 
         if ($input->getOption('addTrips')) {
-            $this->tripHandler->populate($filePath);
+            if (copy($filePath . 'trips.txt', $filePath . 'trips.csv')) {
+                $this->tripHandler->populate($filePath);
+            }
         }
 
         if ($input->getOption('addStopTimes')) {
             $io->note('Stop Times will take some time');
-            $i = 0;
-            while ($i < 1000000) {
-                gc_collect_cycles();
-                echo memory_get_usage();
-                $this->stopTimeHandler->populate($filePath, $i);
-                $i+= 8000;
+            copy($filePath . 'stop_times.txt', $filePath . 'stop_times_x.csv');
+
+            $populateNotFinished = $this->stopTimeHandler->populate($filePath);
+            while ($populateNotFinished) {
+                $populateNotFinished = $this->stopTimeHandler->populate($filePath, $populateNotFinished);
             }
         }
 
