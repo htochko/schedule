@@ -16,7 +16,7 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 #[ApiResource(
     normalizationContext: ['groups' => ['times:view']]
 )]
-#[ApiFilter(SearchFilter::class, properties: ['stop.id' => 'exact', 'trip.day' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: ['stop.id' => 'exact', 'trip.day' => 'exact', 'trip.line.name' => 'exact'])]
 #[ApiFilter(DateFilter::class, properties: ['departure_at' => DateFilter::PARAMETER_STRICTLY_AFTER])]
 #[ApiFilter(OrderFilter::class, properties: ['departure_at' => 'ASC'])]
 #[ORM\Entity(repositoryClass: StopTimeRepository::class)]
