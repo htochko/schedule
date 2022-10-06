@@ -25,6 +25,7 @@ services:
     volumes:
       - ./:/code
       - ./.docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./.docker/php/conf.d/custom.ini:/usr/local/etc/php/conf.d/custom.ini
 
   database:
     image: postgres:${POSTGRES_VERSION:-13}-alpine

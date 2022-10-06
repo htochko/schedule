@@ -69,10 +69,11 @@ export default {
     getDepartures(trips) {
       const departures = [[], []];
       trips.forEach((trip) => {
-        if (!(trip.trip.line.name in departures[+trip.trip.direction])) {
-          departures[+trip.trip.direction][trip.trip.line.name] = [];
+        const lineName = `${trip.trip.line.name} ${trip.trip.header} `;
+        if (!(lineName in departures[+trip.trip.direction])) {
+          departures[+trip.trip.direction][lineName] = [];
         }
-        departures[+trip.trip.direction][trip.trip.line.name].push(trip.departuresIn);
+        departures[+trip.trip.direction][lineName].push(trip.departuresIn);
       });
       const objectDepartures = Object.keys(departures[1]).map(function(line) {
         return {line: line, times: departures[1][line].join(', ')};
@@ -85,11 +86,9 @@ export default {
     setSelected(value) {
       // todo get value as id without additional filtering
       this.stop = this.options.find(item => item.name === value);
-      let now = new Date();
-      let time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
-      // remove `time` to server side as default;
+      // remove `trip.day` to server side as default;
       fetch(
-          `/api/stop_times?page=1&stop.id=${this.stop.id}&trip.day=2&departure_at[after]=${time}&order[departure_at]=asc`
+          `/api/stop_times?page=1&stop.id=${this.stop.id}&trip.day=2&order[departure_at]=asc`
       ).then(res => {
         res.json().then(json => {
           this.trips = json['hydra:member'];
