@@ -4,7 +4,7 @@
     <div class='main-wrapper'>
       <div class='row'>
         <div class='column'>
-          {{ message }}
+          <h4>{{ message }}</h4>
           <v-select label="name"
                     :filterable="false"
                     :options="options"
@@ -28,9 +28,7 @@
           </v-select>
         </div>
         <div class='column'>
-          <h2 v-text="stop?.name"></h2>
-          Nearest trips: <!-- Selected  -->
-          <!-- table of Nearest routes -->
+          <h4 v-text="stop?.name">Nearest trips:</h4>
           <v-departures :departures="departures"></v-departures>
         </div>
       </div>
@@ -51,7 +49,7 @@ export default {
   name: 'App',
   data() {
     return {
-      message: "list of stops",
+      message: "List of stops",
       options: [],
       stopName: null,
       stop: {},
@@ -129,6 +127,7 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
   width: 100%;
+  background: #ffffff;
 }
 
 .column {
@@ -137,5 +136,7 @@ export default {
   flex-basis: 100%;
   flex: 1;
   border: 2px solid #5e2ca5;
+  min-height: 40em;
+  padding: 2em;
 }
 </style>
