@@ -86,7 +86,7 @@ export default {
       this.stop = this.options.find(item => item.name === value);
       // remove `trip.day` to server side as default;
       fetch(
-          `/api/stop_times?page=1&stop.id=${this.stop.id}&trip.day=2&order[departure_at]=asc`
+          `/api/stop_times?page=1&stop.id=${this.stop.id}&&order[departure_at]=asc`
       ).then(res => {
         res.json().then(json => {
           this.trips = json['hydra:member'];

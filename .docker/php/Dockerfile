@@ -14,6 +14,7 @@ RUN pecl install xdebug && \
     net-tools vim && \
     docker-php-ext-configure zip && \
     docker-php-ext-install zip && \
+    docker-php-ext-install calendar && \
     # Install Postgre PDO
     docker-php-ext-install pdo pdo_pgsql && \
     # enable pgsql

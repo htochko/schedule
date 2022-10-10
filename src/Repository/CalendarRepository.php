@@ -38,4 +38,17 @@ class CalendarRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function getTodayDayNumber(): int
+    {
+        $day = strtolower(jddayofweek( date('w') + 6 % 7, CAL_JULIAN));
+        $result = $this->createQueryBuilder('c')
+            ->select(sprintf('c.%s', $day))
+            ->andWhere('c.end_at < :end_at')
+            ->setParameter('end_at', new \DateTimeImmutable('now'))
+            ->orderBy('c.id', 'DESC')
+            ->getQuery()
+            ->getScalarResult();
+        return $result[0][$day];
+    }
 }
