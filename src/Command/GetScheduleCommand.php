@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\CalendarHandler;
 use App\Service\LineHandler;
 use App\Service\StopHandler;
 use App\Service\StopTimeHandler;
@@ -26,7 +27,8 @@ class GetScheduleCommand extends Command
         private StopHandler $stopHandler,
         private LineHandler $lineHandler,
         private TripHandler $tripHandler,
-        private StopTimeHandler $stopTimeHandler
+        private StopTimeHandler $stopTimeHandler,
+        private CalendarHandler $calendarHandler,
     )
     {
         parent::__construct();
@@ -39,6 +41,7 @@ class GetScheduleCommand extends Command
              ->addOption('addLines', null, InputOption::VALUE_NONE, 'Populate Lines')
              ->addOption('addTrips', null, InputOption::VALUE_NONE, 'Populate Trips')
              ->addOption('addStopTimes', null, InputOption::VALUE_NONE, 'Populate Stop Times')
+             ->addOption('addCalendar', null, InputOption::VALUE_NONE, 'Fill calendar')
         ;
     }
 
@@ -90,7 +93,12 @@ class GetScheduleCommand extends Command
             }
         }
 
-        $io->note('Executed with ' . implode(',',$input->getOptions()));
+        if ($input->getOption('addCalendar')) {
+            $this->calendarHandler->populate($filePath);
+        }
+
+        // todo add clear data of execution from $input->getOptions()
+        $io->note('Executed');
 
         return Command::SUCCESS;
     }
