@@ -24,6 +24,14 @@
               </div>
             </template>
           </v-select>
+          <div>
+            <span v-for="item in lines">
+              <button @click="goToLine(item.id)" :disabled="lineId == item.id">{{item.id}}</button>
+            </span>
+          </div>
+        <div class="container" v-if="lineId">
+           <v-line :line="lineId"/>
+        </div>
         </div>
       </div>
 </template>
@@ -31,6 +39,8 @@
 <script>
 import _ from 'lodash';
 import Vue from 'vue';
+import Line from "./Line";
+Vue.component('v-line', Line);
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 
@@ -40,11 +50,14 @@ export default {
   name: 'Admin',
   data() {
     return {
+      lines: [],
       message: "Welcome on Admin widget",
       options: [],
       lineName: null,
       line: {},
       trips:[],
+      lineId: null,
+      pagesLoaded: 0,
     };
   },
   methods: {
@@ -64,7 +77,6 @@ export default {
           this.trips = json['hydra:member'];
         });
       });
-
     },
     search: _.debounce((loading, search, vm) => {
       fetch(
@@ -73,10 +85,22 @@ export default {
         res.json().then(json => (vm.options = json['hydra:member']));
         loading(false);
       });
-    }, 350)
+    }, 350),
+    getLines() {
+      fetch(
+          `/api/lines?pagination=false`
+      ).then(res => {
+        res.json().then(json => {
+          this.lines = json['hydra:member'];
+        });
+      });
+    },
+    goToLine(lineId) {
+      this.lineId = lineId;
+    },
   },
   mounted() {
-    // todo add initial list from real stops
+    this.getLines();
   }
 };
 </script>

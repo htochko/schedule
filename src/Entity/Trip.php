@@ -2,33 +2,42 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\TripRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiResource(
+    normalizationContext: ['groups' => ['trip:view']]
+)]
+#[ApiFilter(SearchFilter::class, properties: ['line.id' => 'exact', 'day' => 'exact', 'direction' => 'exact'])]
 #[ORM\Entity(repositoryClass: TripRepository::class)]
 class Trip
 {
+    #[Groups(['times:view', 'trip:view'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column()]
     private ?int $id = null;
 
-    #[Groups(['stop:routes', 'times:view'])]
+    #[Groups(['stop:routes', 'times:view','trip:view' ])]
     #[ORM\ManyToOne(inversedBy: 'trips')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Line $line = null;
 
-    #[Groups(['stop:routes',  'times:view'])]
+    #[Groups(['stop:routes',  'times:view', 'trip:view'])]
     #[ORM\Column]
     private ?int $day = null;
 
+    #[Groups(['trip:view'])]
     #[ORM\Column(length: 255, nullable: false)]
     private ?string $systemName = null;
 
-    #[Groups(['times:view'])]
+    #[Groups(['times:view', 'trip:view'])]
     #[ORM\Column(length: 255)]
     private ?string $header = null;
 
@@ -38,10 +47,11 @@ class Trip
     #[ORM\Column(type: 'datetime_immutable', nullable: true, options: ["default"=>"CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $synced_at = null;
 
+    #[Groups(['trip:view'])]
     #[ORM\OneToMany(mappedBy: 'trip', targetEntity: StopTime::class, orphanRemoval: true)]
     private Collection $stopTimes;
 
-    #[Groups(['times:view'])]
+    #[Groups(['times:view', 'trip:view'])]
     #[ORM\Column(nullable: true)]
     private ?bool $direction = null;
 

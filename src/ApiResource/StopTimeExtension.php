@@ -15,21 +15,26 @@ class StopTimeExtension implements QueryCollectionExtensionInterface
     {
     }
 
-    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
+    private function addWhere(QueryBuilder $queryBuilder): void
     {
-        if ($resourceClass !== StopTime::class) {
-            return;
-        }
-
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $queryBuilder->andWhere(sprintf('%s.departure_at > :now', $rootAlias))
             ->setParameter('now', 'now');
     }
 
-
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
-        $this->addWhere($queryBuilder, $resourceClass);
+        if ($resourceClass != StopTime::class) {
+            return;
+        }
+
+        if (array_key_exists('filters', $context)) {
+
+            if (array_key_exists('stop.id', $context['filters'])) {
+                $this->addWhere($queryBuilder, $resourceClass);
+            }
+
+        }
     }
 }

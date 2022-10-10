@@ -32,18 +32,19 @@ class StopTime
     #[ORM\JoinColumn(nullable: false)]
     private ?Trip $trip = null;
 
-    #[Groups(['times:view'])]
+    #[Groups(['times:view', 'trip:view'])]
     #[ORM\ManyToOne(inversedBy: 'stopTimes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Stop $stop = null;
 
+    #[Groups(['trip:view'])]
     #[ORM\Column(nullable: true)]
     private ?int $sequence = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $synced_at = null;
 
-    #[Groups(['stop:routes', 'times:view'])]
+    #[Groups(['stop:routes', 'times:view', 'trip:view'])]
     #[ORM\Column(type: 'datetime_immutable', nullable: true, options: ["default"=>"CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $departure_at = null;
 

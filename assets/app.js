@@ -8,9 +8,8 @@
 // any CSS you import will output into a single css file (app.css in this case)
 import './styles/app.css';
 import Vue from 'vue';
-import App from './components/Admin';
+import Admin from "./components/Admin";
 
 new Vue({
-    el: '#admin',
-    render: h => h(App)
-});
+    render: h => h(Admin),
+}).$mount('#admin')

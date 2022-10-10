@@ -42,6 +42,7 @@ class Stop
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[Groups(['line:view'])]
     #[ORM\Column]
     private ?int $systemName = null;
 

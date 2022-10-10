@@ -10,11 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
-    normalizationContext: ['groups' => ['line:view']]
+    normalizationContext: ['groups' => ['line:view']],
+    paginationEnabled: false
 )]
 #[ORM\Entity(repositoryClass: LineRepository::class)]
 class Line
 {
+    #[Groups(['line:view', 'trip:view'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column()]
