@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Calendar;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -50,5 +51,10 @@ class CalendarRepository extends ServiceEntityRepository
             ->getQuery()
             ->getScalarResult();
         return $result[0][$day];
+    }
+
+    public function getLastSyncedRecord(): ?Calendar
+    {
+        return $this->findOneBy([], ['id' => 'DESC']);
     }
 }

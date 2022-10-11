@@ -2,11 +2,14 @@
 
 namespace App\Command;
 
+use App\Repository\CalendarRepository;
 use App\Service\CalendarHandler;
+use App\Service\CalendarHelper;
 use App\Service\LineHandler;
 use App\Service\StopHandler;
 use App\Service\StopTimeHandler;
 use App\Service\TripHandler;
+use Goutte\Client;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,6 +25,8 @@ use ZipArchive;
 )]
 class GetScheduleCommand extends Command
 {
+    const ENDPOINT_ZTM_POZNAN = 'https://www.ztm.poznan.pl/pl/dla-deweloperow/gtfsFiles';
+
     public function __construct(
         private KernelInterface $appKernel,
         private StopHandler $stopHandler,
@@ -29,6 +34,7 @@ class GetScheduleCommand extends Command
         private TripHandler $tripHandler,
         private StopTimeHandler $stopTimeHandler,
         private CalendarHandler $calendarHandler,
+        private CalendarHelper $calendarHelper,
     )
     {
         parent::__construct();
@@ -36,7 +42,8 @@ class GetScheduleCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('upload', null, InputOption::VALUE_NONE, 'Grab new files')
+        $this->addOption('checkNewLink', null, InputOption::VALUE_NONE, 'Finding link to last resource')
+             ->addOption('upload', null, InputOption::VALUE_NONE, 'Grab new files')
              ->addOption('addStops', null, InputOption::VALUE_NONE, 'Populate Stops')
              ->addOption('addLines', null, InputOption::VALUE_NONE, 'Populate Lines')
              ->addOption('addTrips', null, InputOption::VALUE_NONE, 'Populate Trips')
@@ -51,12 +58,27 @@ class GetScheduleCommand extends Command
 
         $filePath = $this->appKernel->getProjectDir().'/archive/';
 
+        if ($input->getOption('checkNewLink')) {
+            $io->note('finding a link');
+            try {
+                $link = $this->getLinkName();
+                $parts = parse_url($link);
+                parse_str($parts['query'], $query);
+                $fileName = $query['file'];
+                $io->note("New file link is $fileName");
+                $io->note($this->calendarHelper->checkLastFileScrapped($fileName));
+            } catch (\Exception $exception) {
+                $io->error($exception->getMessage());
+                return 1;
+            }
+        }
+
         if ($input->getOption('upload')) {
             $io->note('Uploading from ZTM');
-
+            $remoteFilePath = $this->getLinkName();
             $fileName = '1.zip';
-            if('zip' === pathinfo('https://www.ztm.poznan.pl/pl/dla-deweloperow/getGTFSFile/?file=20220917_20220930.zip',PATHINFO_EXTENSION))
-            copy('https://www.ztm.poznan.pl/pl/dla-deweloperow/getGTFSFile/?file=20220917_20220930.zip', $filePath . $fileName);
+            if('zip' === pathinfo($remoteFilePath,PATHINFO_EXTENSION))
+            copy($remoteFilePath, $filePath . $fileName);
 
             $zip = new ZipArchive();
 
@@ -101,5 +123,15 @@ class GetScheduleCommand extends Command
         $io->note('Executed');
 
         return Command::SUCCESS;
+    }
+
+    private function getLinkName(): string
+    {
+        $client = new Client();
+        $crawler = $client->request('GET', self::ENDPOINT_ZTM_POZNAN);
+        $link = $crawler->filter('table')
+            ->last()->filter('tbody')->filter('tr')->first()->children()->last()->filter('a');
+
+        return $link->getBaseHref() . $link->attr('href');
     }
 }

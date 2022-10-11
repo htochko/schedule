@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Calendar;
+use App\Service\CalendarHelper;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CalendarHandler
@@ -51,14 +52,9 @@ class CalendarHandler
 
     private function setDates(Calendar $calendar, array $data): Calendar {
         if (empty($calendar->getEndAt()) || empty($calendar->getStartAt())) {
-            $calendar->setStartAt($this->getDateFromString($data[8]))
-                     ->setEndAt($this->getDateFromString($data[9]));
+            $calendar->setStartAt(CalendarHelper::getDateFromString($data[8]))
+                     ->setEndAt(CalendarHelper::getDateFromString($data[9]));
         }
         return $calendar;
-    }
-
-    private function getDateFromString(string $data): \DateTimeImmutable{
-        $date = new \DateTimeImmutable();
-        return $date->setDate(substr($data, 0, 4), substr($data, 4, 2), substr($data, 6, 2));
     }
 }
