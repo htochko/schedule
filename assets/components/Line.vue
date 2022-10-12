@@ -1,19 +1,27 @@
 <template>
   <div>
-  <h3>{{ line }}:</h3>
+  <h3>{{ line.id }}: {{ line.name }}</h3>
+    <table>
+      <tr v-for="trip in trips">
+        <td>{{ trip.systemName }} {{trip.header }} ({{trip.stopTimes.length}})</td>
+        <td class="time" v-for="time in trip.stopTimes">
+          <span>{{ time.departure_at.substring(11, 16) }}</span>
+        </td>
+      </tr>
+    </table>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Line",
+  name: "theLine",
   props: {
-    line: { required: true, type: Number },
+    line: { required: true, type: Object },
   },
   data() {
     return {
       trips:[],
-      day: 6,
+      day: 2,
     };
   },
   computed: {
@@ -23,13 +31,19 @@ export default {
     getTrips(){
       console.log('loading trips', this.line);
       fetch(
-          `/api/trips?pagination=false&line.id=${this.line}&day=${this.day}`
+          `/api/trips?pagination=false&line.id=${this.line.id}&day=${this.day}`
       ).then(res => {
         res.json().then(json => {
-          this.lines = json['hydra:member'];
+          this.trips = json['hydra:member'];
         });
       });
+    },
+    getTimeDiff(start, end) {
+
     }
+  },
+  setup() {
+
   },
   mounted() {
     this.getTrips();
@@ -38,5 +52,7 @@ export default {
 </script>
 
 <style scoped>
-
+  .time {
+    width: 3em;
+  }
 </style>

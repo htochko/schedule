@@ -26,11 +26,11 @@
           </v-select>
           <div>
             <span v-for="item in lines">
-              <button @click="goToLine(item.id)" :disabled="lineId == item.id">{{item.id}}</button>
+              <button @click="goToLine(item)" :disabled="line.id == item.id">{{item.name}}</button>
             </span>
           </div>
-        <div class="container" v-if="lineId">
-           <v-line :line="lineId"/>
+        <div class="container" v-if="line.id">
+           <v-line :line="line" />
         </div>
         </div>
       </div>
@@ -58,6 +58,7 @@ export default {
       trips:[],
       lineId: null,
       pagesLoaded: 0,
+      day: 2,
     };
   },
   methods: {
@@ -71,7 +72,7 @@ export default {
       this.line = this.options.find(item => item.name === value);
       this.lineName = value;
       fetch(
-          `/api/stop_times?page=1&trip.line.name=${this.lineName}&trip.day=2`
+          `/api/stop_times?page=1&trip.line.name=${this.lineName}&trip.day=${this.day}`
       ).then(res => {
         res.json().then(json => {
           this.trips = json['hydra:member'];
@@ -95,8 +96,8 @@ export default {
         });
       });
     },
-    goToLine(lineId) {
-      this.lineId = lineId;
+    goToLine(line) {
+      this.line = line;
     },
   },
   mounted() {
